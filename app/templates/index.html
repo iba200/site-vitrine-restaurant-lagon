@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="relative h-screen min-h-[600px] flex items-center justify-center bg-gray-900 overflow-hidden">
+    <!-- Overlay/Image Placeholder (Would be a real image in prod) -->
+    <div class="absolute inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+            alt="Vuedu restaurant sur l'océan" class="w-full h-full object-cover opacity-60">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-lagon-dark/90"></div>
+    </div>
+
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto" data-aos="fade-up">
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-6 drop-shadow-lg">
+            Saveurs Marines entre<br>
+            <span class="text-lagon-blue">Ciel et Mer</span>
+        </h1>
+        <p class="text-lg md:text-xl text-gray-200 mb-10 font-light tracking-wide max-w-2xl mx-auto">
+            Une expérience gastronomique inoubliable au cœur du lagon. Cuisine raffinée, produits frais et vue
+            imprenable.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('reservations.index') }}"
+                class="px-8 py-4 bg-lagon-blue hover:bg-lagon-navy text-white text-lg font-medium rounded-full transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 transform hover:-translate-y-1">
+                Réserver une table
+            </a>
+            <a href="{{ url_for('main.menu') }}"
+                class="px-8 py-4 bg-transparent border-2 border-white text-white hover:bg-white hover:text-lagon-dark text-lg font-medium rounded-full transition-all duration-300">
+                Découvrir la carte
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Intro Section -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2" data-aos="fade-right">
+                <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
+                    alt="Intérieur du restaurant" class="rounded-lg shadow-2xl w-full h-[500px] object-cover">
+            </div>
+            <div class="md:w-1/2" data-aos="fade-left">
+                <h2 class="text-3xl md:text-4xl font-serif font-bold text-lagon-navy mb-6">L'Esprit du Lagon</h2>
+                <div class="w-20 h-1 bg-lagon-coral mb-8"></div>
+                <p class="text-gray-600 mb-6 leading-relaxed">
+                    Niché au bord de l'eau, Le Lagon est bien plus qu'un restaurant : c'est une invitation au voyage.
+                    Notre chef passionné sublime les trésors de l'océan avec une touche créative et contemporaine.
+                </p>
+                <p class="text-gray-600 mb-8 leading-relaxed">
+                    Que ce soit pour un déjeuner d'affaires, un dîner romantique ou un moment en famille,
+                    laissez-vous bercer par le clapotis des vagues et la finesse de nos plats.
+                </p>
+                <a href="{{ url_for('main.contact') }}"
+                    class="text-lagon-blue font-semibold hover:text-lagon-navy transition-colors flex items-center gap-2">
+                    En savoir plus sur nous
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Highlights Section -->
+<section class="py-20 bg-lagon-light">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16" data-aos="fade-up">
+            <h2 class="text-3xl md:text-4xl font-serif font-bold text-lagon-navy">À La Carte</h2>
+            <p class="mt-4 text-gray-600">Nos suggestions du moment</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300"
+                data-aos="fade-up" data-aos-delay="0">
+                <div class="h-64 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                        alt="Plat signature"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-lagon-dark">Curry de Crevettes</h3>
+                        <span class="text-lagon-coral font-bold">24€</span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">Crevettes tigrées, lait de coco, citronnelle, riz basmati
+                        parfumé.</p>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300"
+                data-aos="fade-up" data-aos-delay="100">
+                <div class="h-64 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1546039939-41151a751a8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                        alt="Plat signature"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-lagon-dark">Tartare de Thon</h3>
+                        <span class="text-lagon-coral font-bold">22€</span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">Thon rouge frais, avocat, mangue, sésame et sauce ponzu.</p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300"
+                data-aos="fade-up" data-aos-delay="200">
+                <div class="h-64 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1600891964092-4316c288032e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                        alt="Plat signature"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-lagon-dark">Steak de Mahi Mahi</h3>
+                        <span class="text-lagon-coral font-bold">28€</span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">Grillé à la plancha, purée de patates douces, légumes
+                        croquants.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-12">
+            <a href="{{ url_for('main.menu') }}"
+                class="inline-block border-b-2 border-lagon-blue text-lagon-navy font-semibold pb-1 hover:text-lagon-blue transition-colors">
+                Voir tout le menu
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-20 bg-lagon-navy text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+    <div class="max-w-4xl mx-auto px-6 relative z-10 text-center" data-aos="zoom-in">
+        <h2 class="text-3xl md:text-4xl font-serif font-bold mb-12">L'Avis de nos Hôtes</h2>
+
+        <!-- Swiper -->
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper mb-12">
+                <div class="swiper-slide cursor-grab">
+                    <blockquote class="text-xl md:text-2xl font-light italic leading-relaxed mb-6">
+                        "Un cadre exceptionnel et une cuisine qui l'est tout autant. Le service était impeccable. Une
+                        soirée parfaite."
+                    </blockquote>
+                    <cite class="block font-bold text-lagon-blue not-italic">— Sophie Martin</cite>
+                </div>
+                <div class="swiper-slide cursor-grab">
+                    <blockquote class="text-xl md:text-2xl font-light italic leading-relaxed mb-6">
+                        "Les poissons sont d'une fraîcheur incroyable. Le meilleur restaurant de la côte, sans aucun
+                        doute."
+                    </blockquote>
+                    <cite class="block font-bold text-lagon-blue not-italic">— Pierre Dubois</cite>
+                </div>
+                <div class="swiper-slide cursor-grab">
+                    <blockquote class="text-xl md:text-2xl font-light italic leading-relaxed mb-6">
+                        "J'ai adoré l'ambiance calme et luxueuse. Le menu dégustation est une merveille."
+                    </blockquote>
+                    <cite class="block font-bold text-lagon-blue not-italic">— Marie Clark</cite>
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var swiper = new Swiper(".mySwiper", {
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+        },
+        loop: true,
+    });
+</script>
+{% endblock %}

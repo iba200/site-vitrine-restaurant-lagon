@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Notre Carte - Le Lagon{% endblock %}
+
+{% block content %}
+<div class="bg-white" x-data="{ view: 'grid' }">
+    <!-- Header -->
+    <div class="bg-lagon-navy py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-serif font-bold text-white mb-4">Notre Carte</h1>
+            <p class="text-lagon-blue text-lg">Des produits frais, cuisinés avec passion</p>
+        </div>
+    </div>
+
+    <!-- Filters & Toolbar -->
+    <div class="sticky top-20 z-30 bg-white/95 backdrop-blur shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+
+                <!-- Search & Filters Form -->
+                <form hx-get="/api/menu/filter" hx-target="#menu-grid"
+                    hx-trigger="change, keyup delay:500ms from:#search"
+                    class="flex flex-1 flex-wrap items-center gap-4 w-full">
+
+                    <!-- Categories -->
+                    <div class="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="category" value="all" checked class="peer sr-only">
+                            <span
+                                class="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 peer-checked:bg-lagon-blue peer-checked:text-white transition-colors whitespace-nowrap">
+                                Tout
+                            </span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="category" value="entrees" class="peer sr-only">
+                            <span
+                                class="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 peer-checked:bg-lagon-blue peer-checked:text-white transition-colors whitespace-nowrap">
+                                Entrées
+                            </span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="category" value="plats" class="peer sr-only">
+                            <span
+                                class="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 peer-checked:bg-lagon-blue peer-checked:text-white transition-colors whitespace-nowrap">
+                                Plats
+                            </span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="category" value="desserts" class="peer sr-only">
+                            <span
+                                class="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-600 peer-checked:bg-lagon-blue peer-checked:text-white transition-colors whitespace-nowrap">
+                                Desserts
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="relative flex-1 min-w-[200px]">
+                        <input type="search" id="search" name="q" placeholder="Rechercher un plat..."
+                            class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:border-lagon-blue focus:ring-lagon-blue text-sm">
+                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+
+                    <!-- Dietary Toggle -->
+                    <div class="flex items-center gap-2">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="vegetarian" value="true" class="sr-only peer">
+                            <div
+                                class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-lagon-blue/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
+                            </div>
+                            <span class="ms-3 text-sm font-medium text-gray-700">Végétarien</span>
+                        </label>
+                    </div>
+                </form>
+
+                <!-- View Toggle -->
+                <div class="hidden md:flex bg-gray-100 rounded-lg p-1">
+                    <button @click="view = 'grid'"
+                        :class="{ 'bg-white shadow': view === 'grid', 'text-gray-500': view !== 'grid' }"
+                        class="p-2 rounded transition-all">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                    </button>
+                    <button @click="view = 'list'"
+                        :class="{ 'bg-white shadow': view === 'list', 'text-gray-500': view !== 'list' }"
+                        class="p-2 rounded transition-all">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Items Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Initial content will be loaded here or populated by backend -->
+        <div id="menu-grid" class="grid gap-8"
+            :class="{ 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3': view === 'grid', 'grid-cols-1': view === 'list' }"
+            hx-get="/api/menu/filter" hx-trigger="load">
+
+            <!-- Loading State -->
+            <div class="col-span-full flex justify-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-lagon-blue"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

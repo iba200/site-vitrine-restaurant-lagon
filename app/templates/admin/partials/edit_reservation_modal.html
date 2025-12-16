@@ -1,0 +1,67 @@
+<div id="edit-reservation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-xl shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Modifier la Réservation #{{ reservation.id }}</h3>
+            <button _="on click remove #edit-reservation-modal" class="text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <form hx-post="{{ url_for('admin.edit_reservation', id=reservation.id) }}"
+            hx-target="#reservation-{{ reservation.id }}" hx-swap="outerHTML"
+            _="on htmx:afterOnLoad remove #edit-reservation-modal" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Date</label>
+                    <input type="date" name="date" value="{{ reservation.date }}" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Heure</label>
+                    <input type="time" name="time" value="{{ reservation.time.strftime('%H:%M') }}" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Couverts</label>
+                    <input type="number" name="guests" value="{{ reservation.guests }}" min="1" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Statut</label>
+                    <select name="status"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue">
+                        <option value="pending" {% if reservation.status=='pending' %}selected{% endif %}>En attente
+                        </option>
+                        <option value="confirmed" {% if reservation.status=='confirmed' %}selected{% endif %}>Confirmé
+                        </option>
+                        <option value="completed" {% if reservation.status=='completed' %}selected{% endif %}>Terminé
+                        </option>
+                        <option value="cancelled" {% if reservation.status=='cancelled' %}selected{% endif %}>Annulé
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700">Notes Internes</label>
+                <textarea name="internal_notes" rows="2"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue"
+                    placeholder="Allergies, table préférée, etc.">{{ reservation.internal_notes or '' }}</textarea>
+            </div>
+
+            <div class="pt-4 flex justify-end gap-3">
+                <button type="button" _="on click remove #edit-reservation-modal"
+                    class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900">Annuler</button>
+                <button type="submit"
+                    class="px-4 py-2 bg-lagon-blue text-white rounded-md hover:bg-lagon-navy">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>

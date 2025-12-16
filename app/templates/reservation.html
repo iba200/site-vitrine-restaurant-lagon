@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Réserver une Table - Le Lagon{% endblock %}
+
+{% block content %}
+<!-- External Styles for Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+
+<div class="min-h-screen bg-lagon-light py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="text-center mb-10" data-aos="fade-up">
+            <h1 class="text-3xl md:text-4xl font-serif font-bold text-lagon-navy">Réserver une Table</h1>
+            <p class="mt-4 text-gray-600">Venez vivre l'expérience Le Lagon</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+            <!-- Progress Steps (Visual only) -->
+            <div class="bg-gray-50 border-b border-gray-200 p-4">
+                <div class="flex items-center justify-center space-x-4">
+                    <span class="flex items-center text-lagon-blue font-semibold">
+                        <span
+                            class="w-6 h-6 rounded-full border-2 border-lagon-blue flex items-center justify-center mr-2 text-sm">1</span>
+                        Date & Heure
+                    </span>
+                    <span class="w-12 h-px bg-gray-300"></span>
+                    <span class="flex items-center text-gray-400">
+                        <span
+                            class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center mr-2 text-sm">2</span>
+                        Coordonnées
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-8">
+                <form method="POST" action="{{ url_for('reservations.confirm') }}" id="reservationBookingForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <!-- Step 1: Availability -->
+                    <div class="space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Date Picker -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                                <input type="text" id="datepicker" name="date" required
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue"
+                                    placeholder="Sélectionnez une date">
+                            </div>
+
+                            <!-- Guests -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de personnes</label>
+                                <select name="guests" id="guests" hx-post="/api/check-availability"
+                                    hx-target="#slots-container" hx-include="[name='date']"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue">
+                                    {% for i in range(1, 13) %}
+                                    <option value="{{ i }}" {% if i==2 %}selected{% endif %}>{{ i }} personne{{ 's' if i
+                                        > 1 }}</option>
+                                    {% endfor %}
+                                    <option value="more">Plus de 12 (nous contacter)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Slots Container -->
+                        <div id="slots-container" class="min-h-[100px]">
+                            <p class="text-sm text-gray-500 text-center italic">Veuillez sélectionner une date pour voir
+                                les horaires disponibles.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Details (Initially Hidden or shown after slot selection - simplifying for MPV to be all visible but required) -->
+                    <div class="mt-8 border-t border-gray-100 pt-8">
+                        <h3 class="text-lg font-medium text-lagon-navy mb-6">Vos Coordonnées</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Prénom</label>
+                                <input type="text" name="first_name" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Nom</label>
+                                <input type="text" name="last_name" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" name="email" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Téléphone</label>
+                                <input type="tel" name="phone" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700">Demandes particulières</label>
+                                <textarea name="special_requests" rows="3"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lagon-blue focus:ring-lagon-blue"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <button type="submit"
+                            class="w-full bg-lagon-blue text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-lagon-navy transition-colors duration-300">
+                            Confirmer la réservation
+                        </button>
+                        <p class="mt-4 text-xs text-center text-gray-500">
+                            En cliquant sur "Confirmer", vous acceptez nos conditions générales de réservation.
+                            Une empreinte bancaire pourra être demandée pour les groupes de plus de 8 personnes.
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/fr.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.getElementById('datepicker');
+
+        flatpickr(dateInput, {
+            locale: 'fr',
+            minDate: 'today',
+            dateFormat: 'Y-m-d',
+            disable: [
+                function (date) {
+                    // Disable Mondays (Day 1)
+                    return (date.getDay() === 1);
+                }
+            ],
+            onChange: function (selectedDates, dateStr, instance) {
+                // Trigger HTMX request when date changes
+                // We manually trigger the 'change' event on the guest select to refresh slots
+                // or issue an HTMX request directly.
+                // The cleanest way with HTMX is to listen to event on the input, but Flatpickr hides the native input.
+                // Simulating a change event for HTMX to pick up:
+                htmx.trigger('#guests', 'change');
+            }
+        });
+    });
+</script>
+{% endblock %}

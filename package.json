@@ -1,0 +1,31 @@
+{
+  "name": "site-vitrine-restaurant-lagon",
+  "version": "1.0.0",
+  "description": "Site vitrine moderne pour le restaurant \"Le Lagon\" avec système de réservation en ligne et menu interactif.",
+  "main": "tailwind.config.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iba200/site-vitrine-restaurant-lagon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/iba200/site-vitrine-restaurant-lagon/issues"
+  },
+  "homepage": "https://github.com/iba200/site-vitrine-restaurant-lagon#readme",
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.19",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.0"
+  }
+}
