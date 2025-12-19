@@ -105,7 +105,7 @@
         <!-- Initial content will be loaded here or populated by backend -->
         <div id="menu-grid" class="grid gap-8"
             :class="{ 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3': view === 'grid', 'grid-cols-1': view === 'list' }"
-            hx-get="/api/menu/filter" hx-trigger="load">
+            hx-get="/api/menu/filter" hx-trigger="load, menuUpdated from:document">
 
             <!-- Loading State -->
             <div class="col-span-full flex justify-center py-20">

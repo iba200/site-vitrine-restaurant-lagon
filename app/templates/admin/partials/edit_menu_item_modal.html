@@ -9,8 +9,9 @@
             </button>
         </div>
 
-        <form hx-post="{{ url_for('admin.edit_menu_item', id=item.id) }}" hx-target="#menu-item-{{ item.id }}"
-            hx-swap="outerHTML" enctype="multipart/form-data" hx-encoding="multipart/form-data" class="space-y-4">
+        <form method="post" hx-post="{{ url_for('admin.edit_menu_item', id=item.id) }}" hx-target="#menu-item-{{ item.id }}"
+            hx-swap="outerHTML" enctype="multipart/form-data" hx-encoding="multipart/form-data" class="space-y-4"
+            hx-on="htmx:afterRequest: if (event.detail.xhr.status == 200) { this.reset(); var m = document.getElementById('edit-menu-item-modal'); if(m) m.remove(); }">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div>

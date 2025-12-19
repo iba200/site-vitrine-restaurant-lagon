@@ -1,39 +1,67 @@
 {% extends "admin/base.html" %}
 
-{% block title %}Gérer le Menu - Admin </div>
-</div>
+{% block title %}Gérer le Menu - Admin{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+{% block head %}{% endblock %}
+
+<div id="modal-container"></div>
+
+
+{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Initialize Sortable for each category grid
-        document.querySelectorAll('.grid.gap-6').forEach(function (grid) {
-            new Sortable(grid, {
-                animation: 150,
-                ghostClass: 'bg-blue-100',
-                onEnd: function (evt) {
-                    // Collect all item IDs across all categories (or just this one if we only reorder within cat)
-                    // Requirements say "Changer l'ordre des plats". Usually per category.
-                    // But if we want global uniqueness for order index, it's safer to re-index everything or just this list.
-                    // Let's assume we reorder within the category.
+        // Initialize Sortable for the menu grid
+        const grid = document.getElementById('menu-items-grid');
+        if (!grid) return;
 
-                    const itemIds = Array.from(grid.children).map(el => el.getAttribute('id').replace('menu-item-', ''));
+        new Sortable(grid, {
+            animation: 150,
+            ghostClass: 'bg-blue-100',
+            onEnd: function (evt) {
+                const itemIds = Array.from(grid.children).map(el => el.getAttribute('id').replace('menu-item-', ''));
 
-                    fetch('{{ url_for("admin.reorder_menu") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ items: itemIds })
-                    });
-                }
-            });
+                fetch('{{ url_for("admin.reorder_menu") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ items: itemIds })
+                });
+            }
         });
     });
 </script>
+<script>
+    // Fallback: close and reset add-item modal when HTMX inserts the new menu item
+    document.body.addEventListener('htmx:afterSwap', function (event) {
+        try {
+            var target = event.detail && event.detail.target ? event.detail.target : null;
+            // Check if the swapped node is the grid itself or was inserted inside the grid
+            var insideGrid = false;
+            if (target) {
+                if (target.id === 'menu-items-grid') insideGrid = true;
+                else if (typeof target.closest === 'function' && target.closest('#menu-items-grid')) insideGrid = true;
+            }
 
-<div id="modal-container"></div>
+            if (insideGrid) {
+                // hide/add-item modal
+                var addModal = document.getElementById('add-item-modal');
+                if (addModal) {
+                    addModal.classList.add('hidden');
+                    var f = addModal.querySelector('form'); if (f) f.reset();
+                }
+                // remove edit modal if present
+                var editModal = document.getElementById('edit-menu-item-modal');
+                if (editModal) {
+                    editModal.remove();
+                }
+            }
+        } catch (e) {
+            console.error('htmx afterSwap handler error', e);
+        }
+    });
+</script>
 {% endblock %}
 
 {% block content %}
@@ -159,7 +187,8 @@
             </button>
         </div>
 
-        <form hx-post="{{ url_for('admin.add_menu_item') }}" hx-target="#menu-items-grid" hx-swap="beforeend"
+        <form method="post" hx-post="{{ url_for('admin.add_menu_item') }}" hx-target="#menu-items-grid" hx-swap="beforeend"
+            hx-on="htmx:afterRequest: if (event.detail.xhr.status == 200) { this.reset(); document.getElementById('add-item-modal').classList.add('hidden'); }"
             enctype="multipart/form-data" hx-encoding="multipart/form-data" class="space-y-4">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 

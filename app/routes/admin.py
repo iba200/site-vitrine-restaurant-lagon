@@ -282,8 +282,13 @@ def add_menu_item():
     
     db.session.add(item)
     db.session.commit()
-    
-    return render_template('admin/partials/menu_item_card.html', item=item)
+
+    html = render_template('admin/partials/menu_item_card.html', item=item)
+    from flask import make_response
+    response = make_response(html)
+    # Trigger a client-side HTMX event so public menu can refresh
+    response.headers['HX-Trigger'] = 'menuUpdated'
+    return response
 
 @admin.route('/menu/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -320,8 +325,11 @@ def edit_menu_item(id):
     item.is_available = request.form.get('is_available') == 'true'
     
     db.session.commit()
-    
-    return render_template('admin/partials/menu_item_card.html', item=item)
+    html = render_template('admin/partials/menu_item_card.html', item=item)
+    from flask import make_response
+    response = make_response(html)
+    response.headers['HX-Trigger'] = 'menuUpdated'
+    return response
 
 @admin.route('/menu/<int:id>/toggle', methods=['POST'])
 @login_required
