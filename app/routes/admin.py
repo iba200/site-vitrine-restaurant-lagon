@@ -364,5 +364,21 @@ def delete_menu_item(id):
     item = MenuItem.query.get_or_404(id)
     db.session.delete(item)
     db.session.commit()
-    
-    return '', 200
+    # Also support HTMX triggers for public menu refresh
+    from flask import make_response
+    response = make_response('', 200)
+    response.headers['HX-Trigger'] = 'menuUpdated'
+    return response
+
+
+@admin.route('/menu/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_menu_post(id):
+    # POST-based delete endpoint to avoid CSRF issues with DELETE in some clients
+    item = MenuItem.query.get_or_404(id)
+    db.session.delete(item)
+    db.session.commit()
+    from flask import make_response
+    response = make_response('', 200)
+    response.headers['HX-Trigger'] = 'menuUpdated'
+    return response

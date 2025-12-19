@@ -152,7 +152,8 @@
                                     class="text-sm {% if item.is_available %}text-yellow-600 hover:text-yellow-800{% else %}text-green-600 hover:text-green-800{% endif %}">
                                     {% if item.is_available %}Désactiver{% else %}Activer{% endif %}
                                 </button>
-                                <button hx-delete="{{ url_for('admin.delete_menu_item', id=item.id) }}"
+                                <button hx-post="{{ url_for('admin.delete_menu_post', id=item.id) }}"
+                                    hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
                                     hx-target="#menu-item-{{ item.id }}" hx-swap="delete"
                                     hx-confirm="Êtes-vous sûr de vouloir supprimer ce plat ?"
                                     class="text-sm text-red-600 hover:text-red-800">

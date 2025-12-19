@@ -11,8 +11,33 @@
     {% block head %}{% endblock %}
     <!-- HTMX for interactivity (forms, hx- attributes) -->
     <script src="https://unpkg.com/htmx.org@1.9.3"></script>
+    <script>
+        // Add CSRF token to all HTMX requests so Flask-WTF CSRFProtect accepts them
+        document.body.addEventListener('htmx:configRequest', function (evt) {
+            try {
+                evt.detail.headers['X-CSRFToken'] = '{{ csrf_token() }}';
+            } catch (e) {
+                console.error('Failed to attach CSRF token to HTMX request', e);
+            }
+        });
+    </script>
 </head>
 <body class="bg-gray-100 text-lagon-dark min-h-screen">
+    <!-- Flash Messages (admin) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-4 right-4 z-50 space-y-2">
+                {% for category, message in messages %}
+                    <div class="p-4 rounded shadow-lg text-white {% if category == 'success' %}bg-green-500{% elif category == 'error' %}bg-red-500{% else %}bg-blue-500{% endif %} flash">
+                        <div class="flex justify-between items-center">
+                            <span>{{ message }}</span>
+                            <button onclick="this.closest('.flash').remove()" class="ml-4">&times;</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
     <div class="flex">
         <!-- Sidebar (visible only to authenticated users) -->
         {% if current_user.is_authenticated %}
