@@ -148,6 +148,7 @@
                                     Éditer
                                 </button>
                                 <button hx-post="{{ url_for('admin.toggle_menu_item', id=item.id) }}"
+                                    hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
                                     hx-target="#menu-item-{{ item.id }}" hx-swap="outerHTML"
                                     class="text-sm {% if item.is_available %}text-yellow-600 hover:text-yellow-800{% else %}text-green-600 hover:text-green-800{% endif %}">
                                     {% if item.is_available %}Désactiver{% else %}Activer{% endif %}
