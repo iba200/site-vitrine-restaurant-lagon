@@ -104,7 +104,7 @@
                 <div class="bg-white rounded-lg shadow overflow-hidden" id="menu-item-{{ item.id }}">
                     <div class="h-40 bg-gray-200 relative">
                         {% if item.image_url %}
-                        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                            <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover dropzone">
                         {% else %}
                         <div class="w-full h-full flex items-center justify-center text-gray-400">
                             <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,8 +225,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Image</label>
                     <div
-                        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-lagon-blue transition-colors">
-                        <div class="space-y-1 text-center">
+                        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-lagon-blue transition-colors upload-drop-area">
+                            <div class="space-y-1 text-center dropzone">
                             <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
                                 viewBox="0 0 48 48">
                                 <path
@@ -238,6 +238,12 @@
                                     class="relative cursor-pointer bg-white rounded-md font-medium text-lagon-blue hover:text-lagon-navy focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-lagon-blue">
                                     <span>Télécharger un fichier</span>
                                     <input id="file-upload" name="image_file" type="file" class="sr-only">
+                                    <div class="mt-2">
+                                        <img class="file-preview hidden w-full h-40 object-cover rounded" alt="Preview">
+                                        <div class="file-info text-sm text-gray-600 mt-2 hidden">Fichier: <span class="file-name"></span> — <span class="file-size"></span></div>
+                                        <div class="file-error text-sm text-red-600 mt-2 hidden"></div>
+                                        <button type="button" class="file-clear text-sm text-gray-500 mt-2 hidden">Effacer</button>
+                                    </div>
                                 </label>
                                 <p class="pl-1">ou glisser-déposer</p>
                             </div>
@@ -269,4 +275,92 @@
         </form>
     </div>
 </div>
+
+<script>
+    // Drag & drop file handling + preview for add/edit forms
+    function formatBytes(bytes){
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B','KB','MB','GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function setupDropArea(container){
+        if(!container) return;
+        const fileInput = container.querySelector('input[type=file]');
+        if(!fileInput) return;
+        const preview = container.querySelector('.file-preview');
+        const info = container.querySelector('.file-info');
+        const nameEl = container.querySelector('.file-name');
+        const sizeEl = container.querySelector('.file-size');
+        const errEl = container.querySelector('.file-error');
+        const clearBtn = container.querySelector('.file-clear');
+
+        const allowed = ['image/png','image/jpeg','image/jpg','image/gif','image/webp'];
+        const maxBytes = 10 * 1024 * 1024; // 10MB
+
+        function clearFile(){
+            try { fileInput.value = ''; } catch(e){}
+            if (fileInput.files && fileInput.files.length){
+                const dt = new DataTransfer(); fileInput.files = dt.files;
+            }
+            if(preview) { preview.src = ''; preview.classList.add('hidden'); }
+            if(info) info.classList.add('hidden');
+            if(errEl) { errEl.textContent = ''; errEl.classList.add('hidden'); }
+            if(clearBtn) clearBtn.classList.add('hidden');
+        }
+
+        container.addEventListener('dragover', function(e){ e.preventDefault(); container.classList.add('border-lagon-blue'); });
+        container.addEventListener('dragleave', function(e){ container.classList.remove('border-lagon-blue'); });
+        container.addEventListener('drop', function(e){
+            e.preventDefault(); container.classList.remove('border-lagon-blue');
+            const files = e.dataTransfer.files;
+            if(files && files.length){
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+
+        fileInput.addEventListener('change', function(){
+            const file = fileInput.files && fileInput.files[0];
+            if(!file){ clearFile(); return; }
+
+            // validation
+            if(!allowed.includes(file.type)){
+                if(errEl) { errEl.textContent = 'Type de fichier non autorisé. Utilisez PNG/JPG/GIF/WEBP.'; errEl.classList.remove('hidden'); }
+                if(preview) preview.classList.add('hidden');
+                if(info) info.classList.add('hidden');
+                if(clearBtn) clearBtn.classList.remove('hidden');
+                return;
+            }
+
+            if(file.size > maxBytes){
+                if(errEl) { errEl.textContent = 'Fichier trop volumineux (max 10MB).'; errEl.classList.remove('hidden'); }
+                if(preview) preview.classList.add('hidden');
+                if(info) info.classList.add('hidden');
+                if(clearBtn) clearBtn.classList.remove('hidden');
+                return;
+            }
+
+            // success
+            if(errEl) { errEl.textContent = ''; errEl.classList.add('hidden'); }
+            const url = URL.createObjectURL(file);
+            if(preview){ preview.src = url; preview.classList.remove('hidden'); }
+            if(info){ nameEl && (nameEl.textContent = file.name); sizeEl && (sizeEl.textContent = formatBytes(file.size)); info.classList.remove('hidden'); }
+            if(clearBtn) { clearBtn.classList.remove('hidden'); }
+        });
+
+        if(clearBtn){ clearBtn.addEventListener('click', function(){ clearFile(); }); }
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('.upload-drop-area').forEach(setupDropArea);
+    });
+
+    document.body.addEventListener('htmx:afterSwap', function(evt){
+        try{ if(evt.detail && evt.detail.target){ evt.detail.target.querySelectorAll && evt.detail.target.querySelectorAll('.upload-drop-area').forEach(setupDropArea); } }catch(e){console.error(e)}
+    });
+</script>
+
 {% endblock %}
