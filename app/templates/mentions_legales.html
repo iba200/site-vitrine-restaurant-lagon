@@ -15,7 +15,7 @@
             <h3>1. Éditeur du site</h3>
             <p>
                 Le site internet <strong>Le Lagon</strong> est édité par la société Le Lagon SAS.<br>
-                Siège social : 123 Promenade des Anglais, 06000 Nice, France.<br>
+                Siège social : {{ site_settings.ADDRESS or '123 Promenade des Anglais, 06000 Nice, France' }}.<br>
                 Capital social : 10 000 €<br>
                 RCS Nice B 123 456 789<br>
                 TVA Intracommunautaire : FR 12 123456789
@@ -27,7 +27,7 @@
             <h3>3. Hébergement</h3>
             <p>
                 Ce site est hébergé par [Nom de l'hébergeur], [Adresse de l'hébergeur].<br>
-                Téléphone : +33 1 23 45 67 89
+                Téléphone : {{ site_settings.PHONE or '+33 1 23 45 67 89' }}
             </p>
 
             <h3>4. Propriété intellectuelle</h3>
@@ -41,7 +41,7 @@
             <p>
                 Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit
                 d'accès, de rectification et de suppression des données vous concernant. Pour exercer ce droit,
-                contactez-nous via le formulaire de contact ou par email à contact@lelagon.com.
+                contactez-nous via le formulaire de contact ou par email à {{ site_settings.CONTACT_EMAIL or 'contact@lelagon.com' }}.
             </p>
         </div>
     </div>

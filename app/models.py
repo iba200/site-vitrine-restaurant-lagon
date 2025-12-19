@@ -117,3 +117,14 @@ class Testimonial(db.Model):
     comment = db.Column(db.Text)
     is_published = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ContactMessage(db.Model):
+    __tablename__ = 'contact_messages'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    ip = db.Column(db.String(45))
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
