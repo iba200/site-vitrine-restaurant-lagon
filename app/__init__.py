@@ -84,4 +84,40 @@ def create_app(config_name):
     from .routes.api import api as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api')
 
+    # Inject site-wide settings into templates (safe if DB not ready)
+    from .models import Settings
+
+    @app.context_processor
+    def inject_site_settings():
+        try:
+            settings = Settings.get_all() or {}
+        except Exception:
+            settings = {}
+
+        # Parse some JSON-encoded settings for templates
+        import json
+        parsed = {}
+        for k, v in settings.items():
+            if k in ('OPENING_HOURS', 'CLOSED_DATES', 'NOTIFICATION_EMAILS') and v:
+                try:
+                    parsed[k] = json.loads(v)
+                except Exception:
+                    parsed[k] = None
+            else:
+                parsed[k] = v
+
+        # Provide convenient accessors with defaults
+        site = {
+            'ADDRESS': parsed.get('ADDRESS', ''),
+            'PHONE': parsed.get('PHONE', ''),
+            'CONTACT_EMAIL': parsed.get('CONTACT_EMAIL', ''),
+            'OPENING_HOURS': parsed.get('OPENING_HOURS'),
+            'CLOSED_DATES': parsed.get('CLOSED_DATES') or [],
+        }
+
+        # Merge raw parsed map so templates can use other keys too
+        site.update(parsed)
+
+        return dict(site_settings=site)
+
     return app

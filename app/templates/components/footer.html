@@ -11,18 +11,45 @@
             <div data-aos="fade-up" data-aos-delay="100">
                 <h3 class="text-lg font-semibold mb-4 text-lagon-blue">Horaires</h3>
                 <ul class="space-y-2 text-sm text-gray-300">
-                    <li>Mardi - Dimanche</li>
-                    <li>Midi : 12h00 - 14h30</li>
-                    <li>Soir : 19h00 - 22h30</li>
-                    <li class="text-lagon-coral mt-2">Fermé le Lundi</li>
+                    {# Determine representative lunch/dinner windows from OPENING_HOURS if available #}
+                    {% set ns = namespace(lunch=None, dinner=None) %}
+                    {% if site_settings.OPENING_HOURS %}
+                        {% for k, v in site_settings.OPENING_HOURS.items() %}
+                            {% if v and v.lunch and not ns.lunch %}
+                                {% set ns.lunch = v.lunch[0] ~ ' - ' ~ v.lunch[1] %}
+                            {% endif %}
+                            {% if v and v.dinner and not ns.dinner %}
+                                {% set ns.dinner = v.dinner[0] ~ ' - ' ~ v.dinner[1] %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    <li>
+                        {% if ns.lunch %}
+                            Midi : {{ ns.lunch }}
+                        {% else %}
+                            Midi : 12h00 - 14h30
+                        {% endif %}
+                    </li>
+                    <li>
+                        {% if ns.dinner %}
+                            Soir : {{ ns.dinner }}
+                        {% else %}
+                            Soir : 19h00 - 22h30
+                        {% endif %}
+                    </li>
+                    {% set monday = (site_settings.OPENING_HOURS['0'] if site_settings.OPENING_HOURS and ('0' in site_settings.OPENING_HOURS) else None) %}
+                    {% if not monday %}
+                        <li class="text-lagon-coral mt-2">Fermé le Lundi</li>
+                    {% endif %}
                 </ul>
             </div>
             <div data-aos="fade-up" data-aos-delay="200">
                 <h3 class="text-lg font-semibold mb-4 text-lagon-blue">Contact</h3>
                 <ul class="space-y-2 text-sm text-gray-300">
-                    <li>📍 123 Promenade de la Plage</li>
-                    <li>📞 01 23 45 67 89</li>
-                    <li>📧 contact@lelagon.com</li>
+                    <li>📍 {{ site_settings.ADDRESS or '123 Promenade de la Plage' }}</li>
+                    <li>📞 {{ site_settings.PHONE or '01 23 45 67 89' }}</li>
+                    <li>📧 {{ site_settings.CONTACT_EMAIL or 'contact@lelagon.com' }}</li>
                 </ul>
                 <div class="flex space-x-4 mt-6">
                     <a href="#" class="text-gray-400 hover:text-white transition-colors">
