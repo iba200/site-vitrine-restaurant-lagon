@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Modifier Catégorie - Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Modifier la catégorie</h1>
+    <form method="POST" action="{{ url_for('admin.edit_category', id=category.id) }}" class="bg-white p-6 rounded shadow">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-4">
+            <label class="block text-sm text-gray-700">Nom</label>
+            <input name="name" value="{{ category.name }}" class="w-full border rounded p-2" required>
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm text-gray-700">Slug</label>
+            <input name="slug" value="{{ category.slug }}" class="w-full border rounded p-2" required>
+        </div>
+        <div class="flex justify-end gap-3">
+            <a href="{{ url_for('admin.categories') }}" class="px-4 py-2 border rounded">Annuler</a>
+            <button type="submit" class="px-4 py-2 bg-lagon-blue text-white rounded">Enregistrer</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

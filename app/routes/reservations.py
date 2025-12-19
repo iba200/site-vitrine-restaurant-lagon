@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from datetime import datetime
+from datetime import datetime, timedelta
 from .. import db, limiter
 from ..models import Reservation
 
@@ -26,12 +26,65 @@ def confirm():
         if not all([date_str, time_str, guests, first_name, last_name, email, phone]):
             flash('Veuillez remplir tous les champs obligatoires.', 'error')
             return redirect(url_for('reservations.index'))
+        # Parse date/time
+        try:
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+            time_obj = datetime.strptime(time_str, '%H:%M').time()
+        except ValueError:
+            flash('Format de date/heure invalide.', 'error')
+            return redirect(url_for('reservations.index'))
+
+        # Guests handling
+        if guests == 'more':
+            flash('Pour plus de 12 personnes, merci de contacter le restaurant directement.', 'error')
+            return redirect(url_for('reservations.index'))
+
+        try:
+            guests_int = int(guests)
+        except ValueError:
+            flash('Nombre de personnes invalide.', 'error')
+            return redirect(url_for('reservations.index'))
+
+        # Business rules
+        capacity = int(current_app.config.get('CAPACITY', 50))
+        table_duration = timedelta(hours=2)
+
+        new_start = datetime.combine(date_obj, time_obj)
+        new_end = new_start + table_duration
+        now = datetime.now()
+
+        # No reservations less than 2 hours from now
+        if new_start - now < timedelta(hours=2):
+            flash('Les réservations doivent être effectuées au moins 2 heures à l\'avance.', 'error')
+            return redirect(url_for('reservations.index'))
+
+        # No reservations more than 60 days in advance
+        if date_obj > (now.date() + timedelta(days=60)):
+            flash('Les réservations ne peuvent pas être faites plus de 2 mois à l\'avance.', 'error')
+            return redirect(url_for('reservations.index'))
+
+        # Check capacity for overlapping reservations on the same date
+        overlapping_guests = 0
+        existing = Reservation.query.filter(Reservation.date == date_obj, Reservation.status != 'cancelled').all()
+        for r in existing:
+            try:
+                exist_start = datetime.combine(r.date, r.time)
+            except Exception:
+                continue
+            exist_end = exist_start + table_duration
+            # intervals overlap?
+            if not (exist_end <= new_start or exist_start >= new_end):
+                overlapping_guests += (r.guests or 0)
+
+        if overlapping_guests + guests_int > capacity:
+            flash('Désolé, il n\'y a plus de places disponibles pour ce créneau.', 'error')
+            return redirect(url_for('reservations.index'))
 
         # Create reservation object
         reservation = Reservation(
-            date=datetime.strptime(date_str, '%Y-%m-%d').date(),
-            time=datetime.strptime(time_str, '%H:%M').time(),
-            guests=int(guests),
+            date=date_obj,
+            time=time_obj,
+            guests=guests_int,
             first_name=first_name,
             last_name=last_name,
             email=email,

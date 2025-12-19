@@ -178,6 +178,73 @@ def menu():
     
     return render_template('admin/menu.html', items=items, categories=categories, current_category=current_category)
 
+
+@admin.route('/categories', methods=['GET', 'POST'])
+@login_required
+def categories():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        slug = request.form.get('slug')
+        if not name or not slug:
+            flash('Nom et slug requis.', 'error')
+            return redirect(url_for('admin.categories'))
+
+        # ensure uniqueness
+        existing = Category.query.filter((Category.name == name) | (Category.slug == slug)).first()
+        if existing:
+            flash('Une catégorie avec ce nom ou slug existe déjà.', 'error')
+            return redirect(url_for('admin.categories'))
+
+        cat = Category(name=name, slug=slug)
+        db.session.add(cat)
+        db.session.commit()
+        flash('Catégorie ajoutée.', 'success')
+        return redirect(url_for('admin.categories'))
+
+    categories = Category.query.order_by(Category.order).all()
+    return render_template('admin/categories.html', categories=categories)
+
+
+@admin.route('/categories/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_category(id):
+    cat = Category.query.get_or_404(id)
+    if request.method == 'POST':
+        name = request.form.get('name')
+        slug = request.form.get('slug')
+        if not name or not slug:
+            flash('Nom et slug requis.', 'error')
+            return redirect(url_for('admin.edit_category', id=id))
+
+        # check uniqueness
+        existing = Category.query.filter((Category.slug == slug) | (Category.name == name)).filter(Category.id != id).first()
+        if existing:
+            flash('Nom ou slug déjà utilisé.', 'error')
+            return redirect(url_for('admin.edit_category', id=id))
+
+        cat.name = name
+        cat.slug = slug
+        db.session.commit()
+        flash('Catégorie mise à jour.', 'success')
+        return redirect(url_for('admin.categories'))
+
+    return render_template('admin/edit_category.html', category=cat)
+
+
+@admin.route('/categories/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_category(id):
+    cat = Category.query.get_or_404(id)
+    # Prevent deletion if category has items
+    if cat.items.count() > 0:
+        flash('La catégorie contient des plats et ne peut pas être supprimée.', 'error')
+        return redirect(url_for('admin.categories'))
+
+    db.session.delete(cat)
+    db.session.commit()
+    flash('Catégorie supprimée.', 'success')
+    return redirect(url_for('admin.categories'))
+
 @admin.route('/menu/add', methods=['POST'])
 @login_required
 def add_menu_item():

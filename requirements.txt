@@ -12,4 +12,5 @@ APScheduler>=3.10.0
 gunicorn>=21.0.0
 email-validator>=2.1.0
 Werkzeug>=3.0.0
+flask-talisman>=1.0.0
 

@@ -16,6 +16,8 @@ class Config:
     UPLOAD_FOLDER = os.path.join(basedir, 'app', 'static', 'uploads')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024 # 16MB max upload
     ITEMS_PER_PAGE = 25
+    # Business defaults
+    CAPACITY = int(os.environ.get('CAPACITY') or 50)
     
     @staticmethod
     def init_app(app):
@@ -30,8 +32,14 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data.sqlite') # Default to sqlite if not provided, but mostly PG in prod
 
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or 'sqlite:///:memory:'
+    WTF_CSRF_ENABLED = False
+
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'testing': TestingConfig,
     'default': DevelopmentConfig
 }

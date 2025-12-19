@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin - Le Lagon{% endblock %}</title>
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+    <!-- Admin specific styles/plugins can be added by child templates -->
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-100 text-lagon-dark min-h-screen">
+    <div class="flex">
+        <!-- Sidebar (visible only to authenticated users) -->
+        {% if current_user.is_authenticated %}
+        <aside class="w-64 bg-white border-r hidden md:block">
+            <div class="p-6">
+                <a href="{{ url_for('admin.dashboard') }}" class="text-xl font-bold text-lagon-navy">Le Lagon</a>
+            </div>
+            <nav class="px-4 pb-6">
+                <ul class="space-y-2 text-sm">
+                    <li><a href="{{ url_for('admin.dashboard') }}" class="block px-3 py-2 rounded hover:bg-gray-50">Dashboard</a></li>
+                    <li><a href="{{ url_for('admin.reservations') }}" class="block px-3 py-2 rounded hover:bg-gray-50">Réservations</a></li>
+                    <li><a href="{{ url_for('admin.menu') }}" class="block px-3 py-2 rounded hover:bg-gray-50">Menu</a></li>
+                        <li>
+                            <a href="{{ url_for('admin.categories') }}" class="block px-3 py-2 rounded hover:bg-gray-50">Catégories</a>
+                        </li>
+                    <li><a href="{{ url_for('admin.logout') }}" class="block px-3 py-2 rounded text-red-600 hover:bg-gray-50">Déconnexion</a></li>
+                </ul>
+            </nav>
+        </aside>
+        {% endif %}
+
+        <div class="flex-1">
+            <!-- Topbar for mobile -->
+            <header class="bg-white border-b p-4 md:hidden">
+                <div class="flex items-center justify-between">
+                    <a href="{{ url_for('admin.dashboard') }}" class="font-bold">Le Lagon - Admin</a>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('admin.logout') }}" class="text-sm text-red-600">Déconnexion</a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <!-- Main content -->
+            <main class="p-6">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal container for HTMX -->
+    <div id="modal-container"></div>
+
+    <!-- Admin scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

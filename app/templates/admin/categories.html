@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Catégories - Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">Catégories</h1>
+        <a href="{{ url_for('admin.menu') }}" class="text-sm text-gray-500">Retour au menu</a>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <h2 class="text-lg font-medium mb-4">Ajouter une catégorie</h2>
+        <form method="POST" action="{{ url_for('admin.categories') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input name="name" placeholder="Nom" class="border rounded p-2" required>
+            <input name="slug" placeholder="slug (ex: entrees)" class="border rounded p-2" required>
+            <button type="submit" class="bg-lagon-blue text-white px-4 py-2 rounded">Ajouter</button>
+        </form>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-medium mb-4">Liste des catégories</h2>
+        <table class="min-w-full table-auto">
+            <thead>
+                <tr class="text-left text-sm text-gray-500">
+                    <th class="px-2 py-2">#</th>
+                    <th class="px-2 py-2">Nom</th>
+                    <th class="px-2 py-2">Slug</th>
+                    <th class="px-2 py-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr class="border-t">
+                    <td class="px-2 py-3">{{ cat.id }}</td>
+                    <td class="px-2 py-3">{{ cat.name }}</td>
+                    <td class="px-2 py-3">{{ cat.slug }}</td>
+                    <td class="px-2 py-3">
+                        <a href="{{ url_for('admin.edit_category', id=cat.id) }}" class="text-lagon-blue mr-3">Éditer</a>
+                        <form method="POST" action="{{ url_for('admin.delete_category', id=cat.id) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette catégorie ?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="text-red-600">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-2 py-4 text-gray-500">Aucune catégorie.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
