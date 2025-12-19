@@ -5,7 +5,7 @@
 {% block content %}
 <h1 class="text-2xl font-bold mb-4">Paramètres du restaurant</h1>
 <form method="post">
-    {{ csrf_token() }}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
             <label class="block text-sm font-medium">Capacité totale</label>
