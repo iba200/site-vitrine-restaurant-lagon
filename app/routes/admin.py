@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from ..models import User, Reservation, MenuItem, Category
+from ..models import User, Reservation, MenuItem, Category, Settings
 from .. import db, limiter
 from datetime import date, datetime
 
@@ -382,3 +382,88 @@ def delete_menu_post(id):
     response = make_response('', 200)
     response.headers['HX-Trigger'] = 'menuUpdated'
     return response
+
+
+@admin.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    # Load current settings using Settings helper
+    import json
+    if request.method == 'POST':
+        # Parse form values
+        opening_hours_raw = request.form.get('opening_hours')
+        closed_dates_raw = request.form.get('closed_dates')
+        capacity = request.form.get('capacity')
+        table_duration = request.form.get('table_duration')
+        res_min = request.form.get('reservation_min_hours')
+        res_max = request.form.get('reservation_max_days')
+        address = request.form.get('address')
+        phone = request.form.get('phone')
+        contact_email = request.form.get('contact_email')
+        notification_emails = request.form.get('notification_emails')
+
+        # Save structured values
+        try:
+            opening_hours = json.loads(opening_hours_raw) if opening_hours_raw else None
+        except Exception:
+            opening_hours = None
+
+        closed_dates = [d.strip() for d in closed_dates_raw.split(',')] if closed_dates_raw else []
+        notif_list = [e.strip() for e in notification_emails.split(',')] if notification_emails else []
+
+        if capacity:
+            Settings.set('CAPACITY', int(capacity))
+        if table_duration:
+            Settings.set('TABLE_DURATION_MINUTES', int(table_duration))
+        if res_min:
+            Settings.set('RESERVATION_MIN_HOURS', int(res_min))
+        if res_max:
+            Settings.set('RESERVATION_MAX_DAYS', int(res_max))
+
+        Settings.set('OPENING_HOURS', opening_hours, as_json=True)
+        Settings.set('CLOSED_DATES', closed_dates, as_json=True)
+        Settings.set('ADDRESS', address)
+        Settings.set('PHONE', phone)
+        Settings.set('CONTACT_EMAIL', contact_email)
+        Settings.set('NOTIFICATION_EMAILS', notif_list, as_json=True)
+
+        flash('Paramètres sauvegardés.', 'success')
+        return redirect(url_for('admin.settings'))
+
+    # GET: render form with current values
+    import json
+    opening_hours = Settings.get('OPENING_HOURS', default=None, as_json=True)
+    closed_dates = Settings.get('CLOSED_DATES', default=[], as_json=True)
+    capacity = Settings.get('CAPACITY', default=None)
+    table_duration = Settings.get('TABLE_DURATION_MINUTES', default=None)
+    res_min = Settings.get('RESERVATION_MIN_HOURS', default=None)
+    res_max = Settings.get('RESERVATION_MAX_DAYS', default=None)
+    address = Settings.get('ADDRESS', default='')
+    phone = Settings.get('PHONE', default='')
+    contact_email = Settings.get('CONTACT_EMAIL', default='')
+    notification_emails = Settings.get('NOTIFICATION_EMAILS', default=None, as_json=True) or []
+
+    # If not set fall back to config defaults
+    from flask import current_app
+    if opening_hours is None:
+        opening_hours = current_app.config.get('DEFAULT_OPENING_HOURS')
+    if capacity is None:
+        capacity = current_app.config.get('CAPACITY')
+    if table_duration is None:
+        table_duration = current_app.config.get('DEFAULT_TABLE_DURATION_MINUTES')
+    if res_min is None:
+        res_min = current_app.config.get('RESERVATION_MIN_HOURS')
+    if res_max is None:
+        res_max = current_app.config.get('RESERVATION_MAX_DAYS')
+
+    return render_template('admin/settings.html',
+                           opening_hours=opening_hours,
+                           closed_dates=','.join(closed_dates) if closed_dates else '',
+                           capacity=capacity,
+                           table_duration=table_duration,
+                           reservation_min_hours=res_min,
+                           reservation_max_days=res_max,
+                           address=address,
+                           phone=phone,
+                           contact_email=contact_email,
+                           notification_emails=','.join(notification_emails) if notification_emails else '')

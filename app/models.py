@@ -73,6 +73,42 @@ class Settings(db.Model):
     value = db.Column(db.Text)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    @classmethod
+    def get(cls, key, default=None, as_json=False):
+        s = cls.query.filter_by(key=key).first()
+        if not s:
+            return default
+        val = s.value
+        if as_json:
+            try:
+                import json
+                return json.loads(val or 'null')
+            except Exception:
+                return default
+        return val
+
+    @classmethod
+    def set(cls, key, value, as_json=False):
+        s = cls.query.filter_by(key=key).first()
+        if as_json:
+            import json
+            val = json.dumps(value)
+        else:
+            val = str(value) if value is not None else None
+
+        if not s:
+            s = cls(key=key, value=val)
+            db.session.add(s)
+        else:
+            s.value = val
+
+        db.session.commit()
+        return s
+
+    @classmethod
+    def get_all(cls):
+        return {s.key: s.value for s in cls.query.all()}
+
 class Testimonial(db.Model):
     __tablename__ = 'testimonials'
     id = db.Column(db.Integer, primary_key=True)

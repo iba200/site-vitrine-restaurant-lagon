@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request
 from datetime import datetime, timedelta
-from ..models import MenuItem, Category, Reservation
+from ..models import MenuItem, Category, Reservation, Settings
 from flask import current_app
 
 api = Blueprint('api', __name__)
@@ -57,8 +57,18 @@ def check_availability():
         except ValueError:
             requested = 1
 
-    capacity = int(current_app.config.get('CAPACITY', 50))
-    table_duration = timedelta(hours=2)
+    # Read capacity and table duration from settings (with fallbacks)
+    try:
+        capacity = int(Settings.get('CAPACITY', default=current_app.config.get('CAPACITY', 50)))
+    except Exception:
+        capacity = int(current_app.config.get('CAPACITY', 50))
+
+    try:
+        td_minutes = int(Settings.get('TABLE_DURATION_MINUTES', default=current_app.config.get('DEFAULT_TABLE_DURATION_MINUTES', 120)))
+    except Exception:
+        td_minutes = int(current_app.config.get('DEFAULT_TABLE_DURATION_MINUTES', 120))
+
+    table_duration = timedelta(minutes=td_minutes)
 
     # Fetch existing reservations for the date
     existing = Reservation.query.filter(Reservation.date == selected_date, Reservation.status != 'cancelled').all()
